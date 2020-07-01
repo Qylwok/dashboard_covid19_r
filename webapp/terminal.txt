@@ -1,0 +1,3 @@
+library(shiny)
+setwd("/home/qylwok/Documents/developpement/dsia/rattrapages/r")
+runApp()
