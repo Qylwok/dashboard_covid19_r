@@ -1,7 +1,18 @@
-# Travail realise par Raphael LAPERTOT
-# 06 Juillet 2020
-################ CHARGEMENT DES LIBRAIRIES ################ 
+# CE LIEN A L'AIR INSANE : https://shiny.rstudio.com/gallery/covid19-tracker.html
 
+####################################
+# Data Professor                   #
+# http://youtube.com/dataprofessor #
+# http://github.com/dataprofessor  #
+####################################
+
+# Modified from Winston Chang, 
+# https://shiny.rstudio.com/gallery/shiny-theme-selector.html
+
+# Concepts about Reactive programming used by Shiny, 
+# https://shiny.rstudio.com/articles/reactivity-overview.html
+
+# Load R packages
 library(shiny)
 library(shinythemes)
 library(dplyr)
@@ -14,9 +25,12 @@ require(viridis)
 theme_set(
   theme_void()
 )
+library("WHO")
 library(tictoc)
 library(purrr)
 # library(repurrrsive)
+
+
 
 ################ CHARGEMENT DES DONNEES ################ 
 
@@ -130,7 +144,7 @@ trad_countries_names <- function(countries) {
     # print("")
     # print("")
   }
-  # print(unlist(ret))
+  print(unlist(ret))
   return(unlist(ret))
 }
 # tic("mapping")
@@ -249,16 +263,56 @@ toc()
 # print("")
 # print("")
 
+################ LIEN DU PROF ################ A TESTER
+# https://www.datanovia.com/en/blog/how-to-create-a-map-using-ggplot2/
+# tic("lien du prof life.exp") # 4.5 secondes ce fdp
+# life.exp <- get_data("WHOSIS_000001")             # Retrieve the data
+# life.exp <- life.exp %>%
+#   filter(year == 2015 & sex == "Both sexes") %>%  # Keep data for 2015 and for both sex
+#   select(country, value) %>%                      # Select the two columns of interest
+#   rename(region = country, lifeExp = value) %>%   # Rename columns
+#   # Replace "United States of America" by USA in the region column
+#   mutate(
+#     region = ifelse(region == "United States of America", "USA", region)
+#   )  
+# 
 world_map <- map_data("world")
+print("world_map creation : ")
+print(head(world_map))
+print("")
+print("")
+# life.exp.map <- left_join(life.exp, world_map, by = "region")
+# toc()
+# write.csv(life.exp.map,'lifeexp3.csv',fileEncoding = "UTF-8")
+# write.table(life.exp.map,'lifeexp2.csv')
+
+# print(tally(life.exp$region))
+# print("")
+# print(tally(df$region))
+# print(lapply(life.exp, table))
+# print("")
+# print(lapply(df, table))
+
+
+
+# tic("tmp0 and tmp00")
+# tmp0 <- life.exp %>% group_by(region) %>% summarise(count=n())
+# # print(tmp0)
+# # print("")
+# tmp00 <- df %>% filter(Date == '2020-06-01') %>% group_by(Country) %>% summarise(count=n())
+# # print(tmp00)
+# # print("")
+# # print(tmp0[!(tmp0 %in% tmp00)])
+# toc()
 
 
 tic("last preprocessing : filtering df.map")
 df.map <- df %>% 
   filter()
-# print("df.map creation : ")
-# print(head(df.map))
-# print("")
-# print("")
+print("df.map creation : ")
+print(head(df.map))
+print("")
+print("")
 df.map <- select(
   left_join(
     df.map, 
@@ -280,10 +334,10 @@ df.map <- select(
   
   long, lat, group, order, subregion, Date)
 # df.map <- rename(df.map, region = Country)
-# print("df.map after left join : ")
-# print(head(df.map))
-# print("")
-# print("")
+print("df.map after left join : ")
+print(head(df.map))
+print("")
+print("")
 
 whichpart <- function(x, n=30) {
   nx <- length(x)
@@ -377,14 +431,14 @@ df.lastday <- df %>% filter(Date == as.Date(dateMax,"%Y-%m-%d"))
 # df.map$region <- map(df.map$region, trad_countries_names)
 # toc()
 
-# print("df : ")
-# print(head(df))
-# print("")
-# print("")
-# print("df.map : ")
-# print(head(df.map))
-# print("")
-# print("")
+print("df : ")
+print(head(df))
+print("")
+print("")
+print("df.map : ")
+print(head(df.map))
+print("")
+print("")
 
 
 
@@ -402,17 +456,7 @@ df.lastday <- df %>% filter(Date == as.Date(dateMax,"%Y-%m-%d"))
       # theme = "cerulean",  # <--- To use a theme, uncomment this
       "COVID-19 Dashboard in R",
       tabPanel("World Map",
-               mainPanel(
-                 #              h1("Header 1"),
-                 #              
-                 #              h4("Output 1"),
-                 #              verbatimTextOutput("txtout"),
-                 plotOutput("WorldMap", width = "150%", height = "800px")#, align="right"),
-                 # plotOutput("WorldMap", width="100%", height="100%"),
-                 
-                 
-               ), # mainPanel
-               absolutePanel(
+               sidebarPanel(
                  # tags$h3("Input:"),
                  # textInput("txt1", "Given Name:", ""),
                  # textInput("txt2", "Surname:", ""),
@@ -433,14 +477,18 @@ df.lastday <- df %>% filter(Date == as.Date(dateMax,"%Y-%m-%d"))
                  
                  
                ), # sidebarPanel
-               
+               mainPanel(
+               #              h1("Header 1"),
+               #              
+               #              h4("Output 1"),
+               #              verbatimTextOutput("txtout"),
+                 plotOutput("WorldMap"),
+
+               ) # mainPanel
                
       ), # Navbar 1, tabPanel1
       tabPanel("Graphics", 
-               mainPanel(
-                 plotOutput("Graphic", width="150%", height="800px"),
-               ), # mainPanel
-               absolutePanel(
+               sidebarPanel(
                  selectInput("DataG", "What to display : ",
                              choices = c("Confirmed cases", "Deaths", "New confirmed cases", "New deaths")),
                  selectInput("ScaleG", "Scale : ",
@@ -453,7 +501,9 @@ df.lastday <- df %>% filter(Date == as.Date(dateMax,"%Y-%m-%d"))
                  ), # sliderInput
                ), # sidebarPanel
                # tic("main panel graphics"),
-               
+               mainPanel(
+                 plotOutput("Graphic"),
+               ), # mainPanel
                toc()
       ), # Navbar 1, tabPanel 2
       tabPanel("Histograms", 
@@ -464,7 +514,7 @@ df.lastday <- df %>% filter(Date == as.Date(dateMax,"%Y-%m-%d"))
                              choices = c("Linear", "Logarithmic", "Proportional", "Log(proportional)")),
                ),
                mainPanel(
-                 plotOutput("Histogram", height="800px"),
+                 plotOutput("Histogram"),
                ),
       ) # Navbar 1, tabPanel 3
   
@@ -493,6 +543,16 @@ df.lastday <- df %>% filter(Date == as.Date(dateMax,"%Y-%m-%d"))
   
   ################################  SERVEUR  ###############################   
   server <- function(input, output, session) {
+    # Reactive dataframe : 
+    # https://stackoverflow.com/questions/24680246/how-to-trigger-a-data-refresh-in-shiny
+    # https://stackoverflow.com/questions/30443625/how-do-i-build-a-reactive-dataframe-in-r-shiny
+    # ReactivePoll : 
+    # https://shiny.rstudio.com/reference/shiny/latest/reactivePoll.html
+    # Examples : 
+    # https://gist.github.com/wch/9652222
+    # https://stackoverflow.com/questions/55280716/use-reactivepoll-inside-an-observe-r-shiny 
+    
+    
     
     # str(df.map)
     # print(colnames(df.map))
@@ -609,14 +669,39 @@ df.lastday <- df %>% filter(Date == as.Date(dateMax,"%Y-%m-%d"))
       df.date <- df.reactiveW()
       # print(str(df.date))
       
+      ################ LIEN DU PROF ################ A TESTER
+      # https://www.datanovia.com/en/blog/how-to-create-a-map-using-ggplot2/
+      
+      # Option 2
+      # ggplot(
+      #   life.exp.map, 
+      #   aes(map_id = region, 
+      #       fill = lifeExp)
+      # ) + geom_map(
+      #       map = life.exp.map,  
+      #       color = "white"
+      # ) + expand_limits(
+      #       x = life.exp.map$long, 
+      #       y = life.exp.map$lat
+      # ) + scale_fill_viridis_c(option = "C")
+      
+      
+      # ggplot(
+      #   df.date,
+      #   aes(map_id = region,
+      #       fill = Data)
+      # ) + geom_map(
+      #   map = df.date,
+      #   color = "black"
+      # ) + expand_limits(
+      #   x = df.date$long,
+      #   y = df.date$lat
+      # ) + scale_fill_viridis_c(option = "C")
+      
       ggplot() +
         geom_polygon(data = df.date,
-                     aes(x = long, y = lat, group = group, fill = Data)) + 
-        # scale_fill_gradient(low = "#deebf7", high = "#3182bd")
-        expand_limits(
-            x = df.date$long,
-            y = df.date$lat
-          ) + scale_fill_viridis_c(option = "C")
+                     aes(x = long, y = lat, group = group, fill = Data))
+        # scale_fill_gradient(low = "#deebf7", high = "#3182bd") 
         # theme_map()
       
       # gg <- ggplot()
@@ -651,7 +736,7 @@ df.lastday <- df %>% filter(Date == as.Date(dateMax,"%Y-%m-%d"))
          # print(whichpart(df.map$Confirmed.cases, n=input$NcountriesG))
          if(input$DataG == "Confirmed cases"){
            if(input$ScaleG == "Linear"){ # Confirmed.cases
-             # print("begin")
+             print("begin")
              tic("constructing tmp2")
              tmp2 <- tmp %>% arrange(Confirmed.cases)
              toc()
@@ -937,7 +1022,7 @@ df.lastday <- df %>% filter(Date == as.Date(dateMax,"%Y-%m-%d"))
     
     output$Histogram <- renderPlot({
       df.hist <- df.reactiveH()
-      # print(head(df.hist))
+      print(head(df.hist))
       ggplot(df.hist, 
              aes(x=Data) #, fill=region.code, color=region.code)
       ) + 

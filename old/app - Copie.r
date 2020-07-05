@@ -1,7 +1,18 @@
-# Travail realise par Raphael LAPERTOT
-# 06 Juillet 2020
-################ CHARGEMENT DES LIBRAIRIES ################ 
+# CE LIEN A L'AIR INSANE : https://shiny.rstudio.com/gallery/covid19-tracker.html
 
+####################################
+# Data Professor                   #
+# http://youtube.com/dataprofessor #
+# http://github.com/dataprofessor  #
+####################################
+
+# Modified from Winston Chang, 
+# https://shiny.rstudio.com/gallery/shiny-theme-selector.html
+
+# Concepts about Reactive programming used by Shiny, 
+# https://shiny.rstudio.com/articles/reactivity-overview.html
+
+# Load R packages
 library(shiny)
 library(shinythemes)
 library(dplyr)
@@ -17,6 +28,8 @@ theme_set(
 library(tictoc)
 library(purrr)
 # library(repurrrsive)
+
+
 
 ################ CHARGEMENT DES DONNEES ################ 
 
@@ -249,7 +262,47 @@ toc()
 # print("")
 # print("")
 
+################ LIEN DU PROF ################ A TESTER
+# https://www.datanovia.com/en/blog/how-to-create-a-map-using-ggplot2/
+# tic("lien du prof life.exp") # 4.5 secondes ce fdp
+# life.exp <- get_data("WHOSIS_000001")             # Retrieve the data
+# life.exp <- life.exp %>%
+#   filter(year == 2015 & sex == "Both sexes") %>%  # Keep data for 2015 and for both sex
+#   select(country, value) %>%                      # Select the two columns of interest
+#   rename(region = country, lifeExp = value) %>%   # Rename columns
+#   # Replace "United States of America" by USA in the region column
+#   mutate(
+#     region = ifelse(region == "United States of America", "USA", region)
+#   )  
+# 
 world_map <- map_data("world")
+# print("world_map creation : ")
+# print(head(world_map))
+# print("")
+# print("")
+# life.exp.map <- left_join(life.exp, world_map, by = "region")
+# toc()
+# write.csv(life.exp.map,'lifeexp3.csv',fileEncoding = "UTF-8")
+# write.table(life.exp.map,'lifeexp2.csv')
+
+# print(tally(life.exp$region))
+# print("")
+# print(tally(df$region))
+# print(lapply(life.exp, table))
+# print("")
+# print(lapply(df, table))
+
+
+
+# tic("tmp0 and tmp00")
+# tmp0 <- life.exp %>% group_by(region) %>% summarise(count=n())
+# # print(tmp0)
+# # print("")
+# tmp00 <- df %>% filter(Date == '2020-06-01') %>% group_by(Country) %>% summarise(count=n())
+# # print(tmp00)
+# # print("")
+# # print(tmp0[!(tmp0 %in% tmp00)])
+# toc()
 
 
 tic("last preprocessing : filtering df.map")
@@ -493,6 +546,16 @@ df.lastday <- df %>% filter(Date == as.Date(dateMax,"%Y-%m-%d"))
   
   ################################  SERVEUR  ###############################   
   server <- function(input, output, session) {
+    # Reactive dataframe : 
+    # https://stackoverflow.com/questions/24680246/how-to-trigger-a-data-refresh-in-shiny
+    # https://stackoverflow.com/questions/30443625/how-do-i-build-a-reactive-dataframe-in-r-shiny
+    # ReactivePoll : 
+    # https://shiny.rstudio.com/reference/shiny/latest/reactivePoll.html
+    # Examples : 
+    # https://gist.github.com/wch/9652222
+    # https://stackoverflow.com/questions/55280716/use-reactivepoll-inside-an-observe-r-shiny 
+    
+    
     
     # str(df.map)
     # print(colnames(df.map))
@@ -608,6 +671,35 @@ df.lastday <- df %>% filter(Date == as.Date(dateMax,"%Y-%m-%d"))
       
       df.date <- df.reactiveW()
       # print(str(df.date))
+      
+      ################ LIEN DU PROF ################ A TESTER
+      # https://www.datanovia.com/en/blog/how-to-create-a-map-using-ggplot2/
+      
+      # Option 2
+      # ggplot(
+      #   life.exp.map, 
+      #   aes(map_id = region, 
+      #       fill = lifeExp)
+      # ) + geom_map(
+      #       map = life.exp.map,  
+      #       color = "white"
+      # ) + expand_limits(
+      #       x = life.exp.map$long, 
+      #       y = life.exp.map$lat
+      # ) + scale_fill_viridis_c(option = "C")
+      
+      
+      # ggplot(
+      #   df.date,
+      #   aes(map_id = region,
+      #       fill = Data)
+      # ) + geom_map(
+      #   map = df.date,
+      #   color = "black"
+      # ) + expand_limits(
+      #   x = df.date$long,
+      #   y = df.date$lat
+      # ) + scale_fill_viridis_c(option = "C")
       
       ggplot() +
         geom_polygon(data = df.date,
